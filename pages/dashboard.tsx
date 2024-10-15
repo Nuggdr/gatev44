@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { FaLock, FaUserAlt, FaDesktop } from 'react-icons/fa';
+import { FaLock, FaUserAlt, FaDesktop, FaSun } from 'react-icons/fa'; // Ícone adicional
+import Image from 'next/image'; // Para exibir a logo
 
 // Definindo a interface para o modelo de dados do usuário
 interface Machine {
@@ -72,9 +73,27 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex flex-col items-center min-h-screen bg-gray-900">
+      {/* Navbar */}
+      <nav className="w-full bg-gray-800 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          {/* Logo */}
+          <div className="flex items-center">
+           
+            <h1 className="text-blue-400 text-2xl ml-2">Gate Gaming</h1>
+          </div>
+          {/* Links da Navbar */}
+          <div className="space-x-4">
+            <a href="https://grupogate.com/" className="text-white hover:text-blue-400">Home</a>
+            <a href="https://grupogate.com/planos" className="text-white hover:text-blue-400">Planos</a>
+            <a href="https://discord.gg/BE9VB5v9Mn" className="text-white hover:text-blue-400">Suporte</a>
+          </div>
+        </div>
+      </nav>
+
+      {/* Conteúdo do Dashboard */}
       {userData ? (
-        <div className="bg-gray-800 p-10 rounded-lg shadow-lg text-center">
+        <div className="bg-gray-800 p-14 rounded-lg shadow-lg text-center mt-4" style={{ width: '400px' }}>
           <h1 className="text-3xl font-bold text-blue-400 mb-5">Dashboard</h1>
           <div className="space-y-4">
             <p className="flex items-center justify-center text-white">
@@ -89,6 +108,28 @@ const Dashboard = () => {
               <FaLock className="mr-2 text-blue-400" />
               Senha: {userData.machine ? userData.machine.password : 'sem assinatura'}
             </p>
+
+            {/* Novos campos para Sunshine */}
+            <p className="flex items-center justify-center text-white">
+              <FaSun className="mr-2 text-yellow-400" />
+              User Sunshine: gategaming
+            </p>
+            <p className="flex items-center justify-center text-white">
+              <FaLock className="mr-2 text-yellow-400" />
+              Senha Sunshine: gate1234567@
+            </p>
+
+            {/* Botão que leva para a URL com o IP da máquina */}
+            <a
+              href={`https://${userData.machine ? userData.machine.ip : 'localhost'}:47990/pin`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block mt-5 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600"
+            >
+              Acessar PIN
+            </a>
+
+            {/* Botão de ligar a máquina */}
             <button
               onClick={handlePowerOn}
               className={`mt-5 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md ${
