@@ -1,8 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// Definindo interfaces para User e Machine
 interface User {
     _id: string;
     username: string;
@@ -13,35 +11,30 @@ interface Machine {
     ip: string;
 }
 
-const AssignMachine = () => {
+const AssignMachinePage = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [machines, setMachines] = useState<Machine[]>([]);
-    const [selectedUser, setSelectedUser] = useState<string>('');
+    const [selectedUserId, setSelectedUserId] = useState<string>('');
     const [selectedMachineId, setSelectedMachineId] = useState<string>('');
-    const router = useRouter();
+    const [message, setMessage] = useState<string>('');
 
     useEffect(() => {
+        // Função para buscar os usuários
         const fetchUsers = async () => {
             try {
-                const res = await axios.get('/api/users');
-                console.log('Usuários:', res.data);
-                setUsers(res.data);
-            } catch (error: any) {
+                const response = await axios.get('/api/users');
+                setUsers(response.data);
+            } catch (error) {
                 console.error('Erro ao buscar usuários:', error);
             }
         };
 
+        // Função para buscar as máquinas
         const fetchMachines = async () => {
             try {
-                const res = await axios.get('/api/machines');
-                console.log('Máquinas:', res.data);
-                if (res.data && Array.isArray(res.data)) {
-                    setMachines(res.data);
-                } else {
-                    console.warn('A resposta de máquinas não está no formato esperado.');
-                    setMachines([]); // Garante que machines é um array
-                }
-            } catch (error: any) {
+                const response = await axios.get('/api/machines');
+                setMachines(response.data);
+            } catch (error) {
                 console.error('Erro ao buscar máquinas:', error);
             }
         };
@@ -50,73 +43,75 @@ const AssignMachine = () => {
         fetchMachines();
     }, []);
 
-    const handleAssignMachine = async () => {
+    const handleUserChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedUserId(event.target.value);
+    };
+
+    const handleMachineChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedMachineId(event.target.value);
+    };
+
+    const handleAssign = async () => {
         try {
-            const res = await axios.post('/api/assign-machine', {
-                username: selectedUser,
+            const response = await axios.post('/api/assign-machine', {
+                userId: selectedUserId,
                 machineId: selectedMachineId,
             });
-
-            if (res.status === 200) {
-                alert('Máquina atribuída com sucesso!');
-                router.push('/admin'); // Redireciona para a página admin após atribuir a máquina
-            } else {
-                alert('Erro ao atribuir a máquina: ' + res.data.message);
-            }
-        } catch (error: any) {
-            alert('Erro ao atribuir a máquina: ' + error.response?.data.message || error.message);
+            setMessage(response.data.message);
+        } catch (error) {
+            console.error('Erro ao atribuir máquina:', error);
+            setMessage('Erro ao atribuir máquina');
         }
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-900">
-            <div className="bg-gray-800 border-4 border-blue-500 p-10 rounded-lg shadow-lg max-w-md w-full">
-                <h1 className="text-3xl font-bold text-center text-blue-400 mb-6">Atribuir Máquinas</h1>
-                <div className="mb-4">
-                    <label htmlFor="user" className="block text-blue-300">Selecionar Usuário:</label>
-                    <select
-                        id="user"
-                        value={selectedUser}
-                        onChange={(e) => setSelectedUser(e.target.value)}
-                        className="w-full p-2 rounded"
-                    >
-                        <option value="">Selecione um usuário</option>
-                        {users.length > 0 ? (
-                            users.map(user => (
-                                <option key={user._id} value={user.username}>{user.username}</option>
-                            ))
-                        ) : (
-                            <option value="" disabled>Sem usuários disponíveis</option>
-                        )}
-                    </select>
-                </div>
-                <div className="mb-4">
-                    <label htmlFor="machine" className="block text-blue-300">Selecionar Máquina:</label>
-                    <select
-                        id="machine"
-                        value={selectedMachineId}
-                        onChange={(e) => setSelectedMachineId(e.target.value)}
-                        className="w-full p-2 rounded"
-                    >
-                        <option value="">Selecione uma máquina</option>
-                        {machines.length > 0 ? (
-                            machines.map(machine => (
-                                <option key={machine._id} value={machine._id}>{machine.ip}</option>
-                            ))
-                        ) : (
-                            <option value="" disabled>Sem máquinas disponíveis</option>
-                        )}
-                    </select>
-                </div>
-                <button
-                    onClick={handleAssignMachine}
-                    className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+        <div className="container mx-auto p-4">
+            <h1 className="text-2xl font-bold mb-4">Atribuir Máquina a Usuário</h1>
+
+            <div className="mb-4">
+                <label htmlFor="user" className="block mb-2 text-sm font-medium text-gray-200">Selecione o Usuário</label>
+                <select
+                    id="user"
+                    value={selectedUserId}
+                    onChange={handleUserChange}
+                    className="bg-gray-800 text-white border border-gray-600 rounded-lg p-2"
                 >
-                    Atribuir Máquina
-                </button>
+                    <option value="">Selecione um usuário</option>
+                    {users.map((user) => (
+                        <option key={user._id} value={user._id}>
+                            {user.username}
+                        </option>
+                    ))}
+                </select>
             </div>
+
+            <div className="mb-4">
+                <label htmlFor="machine" className="block mb-2 text-sm font-medium text-gray-200">Selecione a Máquina</label>
+                <select
+                    id="machine"
+                    value={selectedMachineId}
+                    onChange={handleMachineChange}
+                    className="bg-gray-800 text-white border border-gray-600 rounded-lg p-2"
+                >
+                    <option value="">Selecione uma máquina</option>
+                    {machines.map((machine) => (
+                        <option key={machine._id} value={machine._id}>
+                            {machine.ip}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            <button
+                onClick={handleAssign}
+                className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
+            >
+                Atribuir Máquina
+            </button>
+
+            {message && <p className="mt-4 text-gray-300">{message}</p>}
         </div>
     );
 };
 
-export default AssignMachine;
+export default AssignMachinePage;
