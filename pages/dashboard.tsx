@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { FaLock, FaUserAlt, FaDesktop, FaSun } from 'react-icons/fa'; // Ícone adicional
-import Image from 'next/image'; // Para exibir a logo
+
 
 // Definindo a interface para o modelo de dados do usuário
 interface Machine {
